@@ -3,7 +3,7 @@ import logging
 import requests
 
 LINE_PUSH_URL = "https://api.line.me/v2/bot/message/push"
-LINE_TOKEN_URL = "https://api.line.me/oauth2/v2.1/token"
+LINE_TOKEN_URL = "https://api.line.me/oauth2/v3/token"
 MAX_TEXT_LENGTH = 5000
 TIMEOUT = 15
 
