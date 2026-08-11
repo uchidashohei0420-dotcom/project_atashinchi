@@ -3,7 +3,7 @@ import logging
 from scripts import google_search, site_generator
 from scripts.common import config, notify
 from scripts.common.health import record_failure, record_success
-from scripts.common.line_client import push_text
+from scripts.common.line_client import get_access_token_or_dry_run, push_text
 from scripts.common.quota import increment, load_or_reset_month
 from scripts.common.state import (
     canonicalize_url,
@@ -49,6 +49,7 @@ def process_search_results(items, seen_items, digest_queue, now_iso):
 def run():
     now = config.now_jst()
     now_iso = now.isoformat()
+    line_token = get_access_token_or_dry_run(config.LINE_CHANNEL_ID, config.LINE_CHANNEL_SECRET, config.DRY_RUN)
 
     seen_items = load_json(config.SEEN_ITEMS_PATH, default={})
     quota = load_json(config.LINE_QUOTA_PATH, default={"year_month": "", "count": 0})
@@ -69,12 +70,12 @@ def run():
             health, google_search.SOURCE_ID, google_search.SOURCE_LABEL, str(exc), now_iso
         )
         if alert:
-            push_text(config.LINE_USER_ID, config.LINE_CHANNEL_ACCESS_TOKEN, alert, dry_run=config.DRY_RUN)
+            push_text(config.LINE_USER_ID, line_token, alert, dry_run=config.DRY_RUN)
         items = []
     else:
         health, alert = record_success(health, google_search.SOURCE_ID, google_search.SOURCE_LABEL)
         if alert:
-            push_text(config.LINE_USER_ID, config.LINE_CHANNEL_ACCESS_TOKEN, alert, dry_run=config.DRY_RUN)
+            push_text(config.LINE_USER_ID, line_token, alert, dry_run=config.DRY_RUN)
 
     seen_items, digest_queue = process_search_results(items, seen_items, digest_queue, now_iso)
     logger.info("google_search: fetched=%d pending_digest=%d", len(items), len(digest_queue["pending"]))
@@ -82,7 +83,7 @@ def run():
     if digest_queue["pending"]:
         digest_text = notify.format_digest(digest_queue["pending"])
         try:
-            push_text(config.LINE_USER_ID, config.LINE_CHANNEL_ACCESS_TOKEN, digest_text, dry_run=config.DRY_RUN)
+            push_text(config.LINE_USER_ID, line_token, digest_text, dry_run=config.DRY_RUN)
         except Exception:  # noqa: BLE001 - keep the queue intact so it retries tomorrow
             logger.exception("digest push failed; leaving queue intact for retry")
         else:

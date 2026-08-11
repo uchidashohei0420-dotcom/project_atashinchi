@@ -18,7 +18,7 @@
 1. リポジトリをpublicで作成し、Settings → Actions → General → Workflow permissions を「Read and write permissions」に設定
 2. LINE Developersで公式アカウント（Messaging API）を作成し、Channel Access Tokenと自分のuserIdを取得
 3. Google Cloud ConsoleでCustom Search JSON APIを有効化し、API KeyとProgrammable Search EngineのCSE ID(cx)を取得
-4. リポジトリSecretsに登録: `LINE_CHANNEL_ACCESS_TOKEN` / `LINE_USER_ID` / `GOOGLE_API_KEY` / `GOOGLE_CSE_ID`
+4. リポジトリSecretsに登録: `LINE_CHANNEL_ID` / `LINE_CHANNEL_SECRET` / `LINE_USER_ID` / `GOOGLE_API_KEY` / `GOOGLE_CSE_ID`
 5. Settings → Pages → Source を `main` ブランチの `/docs` に設定
 
 ## ローカル開発

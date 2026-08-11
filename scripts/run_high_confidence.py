@@ -4,7 +4,7 @@ from scripts import site_generator
 from scripts.adapters import keraeiko, shinei_shop, shopnui
 from scripts.common import config, notify
 from scripts.common.health import record_failure, record_success
-from scripts.common.line_client import push_text
+from scripts.common.line_client import get_access_token_or_dry_run, push_text
 from scripts.common.quota import increment, is_throttled, load_or_reset_month
 from scripts.common.state import (
     canonicalize_url,
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 ADAPTERS = [keraeiko, shinei_shop, shopnui]
 
 
-def process_source(source_id, source_label, items, seen_items, quota, digest_queue, now_iso, dry_run):
+def process_source(source_id, source_label, items, seen_items, quota, digest_queue, now_iso, dry_run, line_token=""):
     """Diff fetched items against the seen-registry for one source. Genuinely
     new items are pushed immediately unless the monthly quota is throttled,
     in which case they're queued for the daily digest instead. The very
@@ -39,7 +39,7 @@ def process_source(source_id, source_label, items, seen_items, quota, digest_que
             continue
         if not is_throttled(quota, config.THROTTLE_THRESHOLD):
             text = notify.format_immediate(item.title, item.url, source_label, now_iso)
-            push_text(config.LINE_USER_ID, config.LINE_CHANNEL_ACCESS_TOKEN, text, dry_run=dry_run)
+            push_text(config.LINE_USER_ID, line_token, text, dry_run=dry_run)
             quota = increment(quota)
             sent += 1
         else:
@@ -60,6 +60,7 @@ def process_source(source_id, source_label, items, seen_items, quota, digest_que
 def run():
     now = config.now_jst()
     now_iso = now.isoformat()
+    line_token = get_access_token_or_dry_run(config.LINE_CHANNEL_ID, config.LINE_CHANNEL_SECRET, config.DRY_RUN)
 
     seen_items = load_json(config.SEEN_ITEMS_PATH, default={})
     quota = load_json(config.LINE_QUOTA_PATH, default={"year_month": "", "count": 0})
@@ -81,15 +82,16 @@ def run():
             logger.exception("adapter %s failed", source_id)
             health, alert = record_failure(health, source_id, source_label, str(exc), now_iso)
             if alert:
-                push_text(config.LINE_USER_ID, config.LINE_CHANNEL_ACCESS_TOKEN, alert, dry_run=config.DRY_RUN)
+                push_text(config.LINE_USER_ID, line_token, alert, dry_run=config.DRY_RUN)
             continue
 
         health, alert = record_success(health, source_id, source_label)
         if alert:
-            push_text(config.LINE_USER_ID, config.LINE_CHANNEL_ACCESS_TOKEN, alert, dry_run=config.DRY_RUN)
+            push_text(config.LINE_USER_ID, line_token, alert, dry_run=config.DRY_RUN)
 
         seen_items, quota, digest_queue, sent = process_source(
-            source_id, source_label, items, seen_items, quota, digest_queue, now_iso, config.DRY_RUN
+            source_id, source_label, items, seen_items, quota, digest_queue, now_iso, config.DRY_RUN,
+            line_token=line_token,
         )
         logger.info("%s: fetched=%d sent=%d", source_id, len(items), sent)
 
