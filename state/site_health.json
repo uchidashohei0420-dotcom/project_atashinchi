@@ -1,0 +1,22 @@
+{
+  "google_search": {
+    "last_error": null,
+    "last_error_at": null,
+    "status": "ok"
+  },
+  "keraeiko": {
+    "last_error": null,
+    "last_error_at": null,
+    "status": "ok"
+  },
+  "shinei_shop": {
+    "last_error": null,
+    "last_error_at": null,
+    "status": "ok"
+  },
+  "shopnui": {
+    "last_error": null,
+    "last_error_at": null,
+    "status": "ok"
+  }
+}
