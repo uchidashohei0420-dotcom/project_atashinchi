@@ -1,8 +1,8 @@
 {
   "google_search": {
-    "last_error": null,
-    "last_error_at": null,
-    "status": "ok"
+    "last_error": "403 Client Error: Forbidden for url: https://www.googleapis.com/customsearch/v1?key=AIzaSyDeADR-5CZdr8CB7PG1V1kLc2JUMvwgWn4&cx=c65f5aee65e834451&q=%E3%81%82%E3%81%9F%E3%81%97%E3%83%B3%E3%81%A1+%E3%82%B0%E3%83%83%E3%82%BA&num=10",
+    "last_error_at": "2026-08-11T21:12:43.752953+09:00",
+    "status": "error"
   },
   "keraeiko": {
     "last_error": null,
