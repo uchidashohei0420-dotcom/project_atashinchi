@@ -17,7 +17,15 @@ def search(query: str, api_key: str, cse_id: str) -> List[Item]:
         params={"key": api_key, "cx": cse_id, "q": query, "num": 10},
         timeout=TIMEOUT,
     )
-    resp.raise_for_status()
+    try:
+        resp.raise_for_status()
+    except requests.exceptions.HTTPError:
+        # Re-raise without requests' default message, which embeds the full
+        # request URL (including the api_key query param) - that string
+        # ends up in state/site_health.json and gets committed to the repo.
+        raise requests.exceptions.HTTPError(
+            f"{resp.status_code} {resp.reason} from Google Custom Search (query={query!r})"
+        ) from None
     data = resp.json()
     items: List[Item] = []
     for result in data.get("items", []):

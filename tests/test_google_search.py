@@ -1,6 +1,9 @@
 import json
 from pathlib import Path
 
+import pytest
+import requests
+
 from scripts.google_search import SEARCH_URL, fetch, search
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -26,3 +29,11 @@ def test_fetch_dedupes_across_multiple_queries(requests_mock):
     # same fixture returned for all 3 queries; URLs must be deduped
     assert len(items) == 2
     assert requests_mock.call_count == 3
+
+
+def test_search_http_error_does_not_leak_api_key(requests_mock):
+    requests_mock.get(SEARCH_URL, status_code=403, reason="Forbidden")
+    with pytest.raises(requests.exceptions.HTTPError) as exc_info:
+        search("あたしンち グッズ", "super-secret-key", "cx")
+    assert "super-secret-key" not in str(exc_info.value)
+    assert "403" in str(exc_info.value)
