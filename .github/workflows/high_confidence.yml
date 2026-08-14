@@ -9,6 +9,10 @@ on:
         description: "Skip real LINE pushes (log only)"
         type: boolean
         default: true
+      test_message:
+        description: "If set, sends this as a one-off LINE test push and skips the normal watch run"
+        type: string
+        default: ""
 
 permissions:
   contents: write
@@ -30,7 +34,17 @@ jobs:
 
       - run: pip install -r requirements.txt
 
+      - name: Send test LINE push
+        if: github.event_name == 'workflow_dispatch' && inputs.test_message != ''
+        env:
+          LINE_CHANNEL_ID: ${{ secrets.LINE_CHANNEL_ID }}
+          LINE_CHANNEL_SECRET: ${{ secrets.LINE_CHANNEL_SECRET }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: python -m scripts.send_test_notification "${{ inputs.test_message }}"
+
       - name: Run high-confidence watch
+        if: github.event_name != 'workflow_dispatch' || inputs.test_message == ''
         env:
           LINE_CHANNEL_ID: ${{ secrets.LINE_CHANNEL_ID }}
           LINE_CHANNEL_SECRET: ${{ secrets.LINE_CHANNEL_SECRET }}
@@ -39,6 +53,7 @@ jobs:
         run: python -m scripts.run_high_confidence
 
       - name: Commit and push state/site updates
+        if: github.event_name != 'workflow_dispatch' || inputs.test_message == ''
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
