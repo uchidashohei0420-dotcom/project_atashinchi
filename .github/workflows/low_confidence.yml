@@ -1,9 +1,6 @@
 name: Low-confidence watch
 
 on:
-  schedule:
-    # 21:00 UTC = 06:00 JST
-    - cron: "0 21 * * *"
   workflow_dispatch:
     inputs:
       dry_run:
