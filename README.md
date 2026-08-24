@@ -2,7 +2,7 @@
 
 「あたしンち」のグッズ・イベント情報を見逃さないための個人用監視ツール。GitHub Actionsで定期的にサイトを巡回し、新着をLINEに通知する。
 
-**現在の稼働状況**: 高確度モード（3サイト定点観測 + LINE通知）は本番稼働中。低確度モード（キーワード検索）は、想定していたGoogle Custom Search JSON APIが新規顧客の受付を停止しており（Bing Search APIも2025年8月に完全retire済み）利用できないため、`low_confidence.yml`のcronは無効化して見送り中。代替の検索API（Brave Search APIなど、要クレジットカード登録）を選定できたら`GOOGLE_API_KEY`/`GOOGLE_CSE_ID`相当のSecretsを差し替えて`gh workflow enable low_confidence.yml`で再開できる。
+**現在の稼働状況**: 全機能停止中。`high_confidence.yml` / `low_confidence.yml` ともに `schedule` トリガーを削除済みで、自動実行（定点観測・キーワード検索・LINE通知）は行われない。`workflow_dispatch` による手動実行のみ可能。再開する場合は各ワークフローに `schedule:` トリガーを戻すこと。低確度モード（キーワード検索）については、想定していたGoogle Custom Search JSON APIが新規顧客の受付を停止しており（Bing Search APIも2025年8月に完全retire済み）利用できない状態が続いているため、再開時は代替の検索API（Brave Search APIなど、要クレジットカード登録）の選定と`GOOGLE_API_KEY`/`GOOGLE_CSE_ID`相当のSecrets差し替えが必要。
 
 ## 構成
 
