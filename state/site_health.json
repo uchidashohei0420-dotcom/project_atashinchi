@@ -15,8 +15,8 @@
     "status": "ok"
   },
   "shopnui": {
-    "last_error": null,
-    "last_error_at": null,
-    "status": "ok"
+    "last_error": "503 Server Error: Service Unavailable for url: https://www.shopnui.jp/shopbrand/ct290/",
+    "last_error_at": "2026-08-25T01:06:49.316887+09:00",
+    "status": "error"
   }
 }
